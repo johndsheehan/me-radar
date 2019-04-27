@@ -5,7 +5,8 @@ The gif is served on localhost, to the user-specified port.
 
 ## Build
 ```
-
+go get
+got build
 ```
 
 ## Usage
