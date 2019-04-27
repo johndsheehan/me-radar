@@ -1,6 +1,9 @@
 package main
 
 import (
+	"errors"
+	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -9,7 +12,13 @@ import (
 )
 
 func main() {
-	log.SetFlags(log.Lshortfile | log.LstdFlags)
+	port := flag.Int("port", 3031, "server port (default 3031)")
+	flag.Parse()
+
+	if *port < 1024 || *port > 65535 {
+		log.Fatal(errors.New("port should be between 1024 and 65536"))
+	}
+	colonPort := fmt.Sprintf(":%d", *port)
 
 	r := NewRadar(10)
 
@@ -23,8 +32,6 @@ func main() {
 		}
 		r.Update(gifImg)
 	}
-
-	colonPort := ":3031"
 
 	go update(r)
 	go serve(r, colonPort)
