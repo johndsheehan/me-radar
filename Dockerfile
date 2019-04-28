@@ -1,27 +1,17 @@
-FROM ubuntu:18.04
+FROM golang:alpine AS build
+
+RUN apk update && apk add --no-cache git
+
+WORKDIR /app
+COPY go.mod go.sum *.go /app/
+
+ENV GO111MODULE="on"
+RUN go get 
+RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' .
 
 
-ENV DEBIAN_FRONTEND="noninteractive"
-RUN apt-get update  && \
-    apt-get install  -y  build-essential git sudo tzdata wget  && \
-    ln  -fs  /usr/share/zoneinfo/Europe/Dublin  /etc/localtime  && \
-    dpkg-reconfigure --frontend noninteractive tzdata
+FROM scratch
+COPY --from=build /app/met-eireann-archive /met-eireann-archive
+COPY ./Eire /etc/localtime
 
-
-ENV PATH="$PATH:/go/bin"
-ENV GOPATH="/golang"
-RUN wget -q https://dl.google.com/go/go1.12.4.linux-amd64.tar.gz  && \
-    tar -xf go1.12.4.linux-amd64.tar.gz  && \
-    mkdir /golang  && \
-    go get -u -d gocv.io/x/gocv  && \
-    cd $GOPATH/src/gocv.io/x/gocv  && \
-    make install
-
-
-WORKDIR /met
-COPY go.mod go.sum *.go /met/
-RUN  go get  && \
-     go build
-
-
-CMD ["./met-eireann-archive"]
+ENTRYPOINT ["/met-eireann-archive"]

@@ -1,16 +1,21 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"errors"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/gif"
+	"image/png"
 	"io/ioutil"
 	"log"
 	"net/http"
 
-	"gocv.io/x/gocv"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/math/fixed"
 )
 
 const (
@@ -39,17 +44,48 @@ func pngFetch(timestamp string) ([]byte, error) {
 	return pngBytes, nil
 }
 
+func textImageCreate(text string, x, y int, bounds image.Rectangle) *image.RGBA {
+	col := color.RGBA{255, 255, 255, 255}
+	point := fixed.Point26_6{
+		fixed.Int26_6(x * 64),
+		fixed.Int26_6(y * 64),
+	}
+
+	img := image.NewRGBA(bounds)
+	d := &font.Drawer{
+		Dst:  img,
+		Src:  image.NewUniform(col),
+		Face: basicfont.Face7x13,
+		Dot:  point,
+	}
+	d.DrawString(text)
+
+	return img
+}
+
 func pngText(img []byte, dateStr, timeStr string) ([]byte, error) {
-	imgMat, err := gocv.IMDecode(img, gocv.IMReadColor)
+	decoded, err := png.Decode(bytes.NewReader(img))
 	if err != nil {
 		return nil, err
 	}
 
-	color := color.RGBA{255, 255, 255, 100}
-	gocv.PutText(&imgMat, dateStr, image.Point{10, 30}, gocv.FontHersheyComplex, 0.75, color, 2)
-	gocv.PutText(&imgMat, timeStr, image.Point{10, 60}, gocv.FontHersheyComplex, 0.75, color, 2)
+	dateImg := textImageCreate(dateStr, 10, 30, decoded.Bounds())
+	timeImg := textImageCreate(timeStr, 10, 60, decoded.Bounds())
 
-	return gocv.IMEncode(".png", imgMat)
+	out := image.NewRGBA(decoded.Bounds())
+	draw.Draw(out, decoded.Bounds(), decoded, image.ZP, draw.Src)
+	draw.Draw(out, dateImg.Bounds(), dateImg, image.ZP, draw.Over)
+	draw.Draw(out, timeImg.Bounds(), timeImg, image.ZP, draw.Over)
+
+	var buf bytes.Buffer
+	wtr := bufio.NewWriter(&buf)
+	err = png.Encode(wtr, out)
+	if err != nil {
+		return nil, err
+	}
+	wtr.Flush()
+
+	return buf.Bytes(), nil
 }
 
 func pngToGIF(pngImg []byte) (*image.Paletted, error) {
