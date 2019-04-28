@@ -47,8 +47,8 @@ func pngFetch(timestamp string) ([]byte, error) {
 func textImageCreate(text string, x, y int, bounds image.Rectangle) *image.RGBA {
 	col := color.RGBA{255, 255, 255, 255}
 	point := fixed.Point26_6{
-		fixed.Int26_6(x * 64),
-		fixed.Int26_6(y * 64),
+		X: fixed.Int26_6(x * 64),
+		Y: fixed.Int26_6(y * 64),
 	}
 
 	img := image.NewRGBA(bounds)
