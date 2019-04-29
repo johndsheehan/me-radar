@@ -17,8 +17,9 @@ go build
 
 ## Docker
 ```
-docker build -t met:latest .
-docker run --rm -it -p 3031:3031 met:latest
+export TAG=$(date +"%Y%m%d-%H%M%S")
+docker build  -t  met:${TAG} .
+docker run  --rm  -it  -p 3031:3031  met:${TAG}
 ```
 
 ## View
