@@ -1,9 +1,7 @@
 package main
 
 import (
-	"errors"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -12,13 +10,25 @@ import (
 )
 
 func main() {
-	port := flag.Int("port", 3031, "server port (default 3031)")
+	port := flag.String("port", "3080", "http port (default 3080)")
+	tlsport := flag.String("tlsport", "3443", "https port (default 3443)")
+	fullchain := flag.String("fullchain", "", "fullchain.pem")
+	privateKey := flag.String("privateKey", "", "privKey.pem")
+
 	flag.Parse()
 
-	if *port < 1024 || *port > 65535 {
-		log.Fatal(errors.New("port should be between 1024 and 65536"))
+	useTLS := false
+	if *fullchain != "" && *privateKey != "" {
+		useTLS = true
 	}
-	colonPort := fmt.Sprintf(":%d", *port)
+
+	serverCfg := ServerConfig{
+		colonPort:    ":" + *port,
+		colonTLSPort: ":" + *tlsport,
+		fullchain:    *fullchain,
+		privateKey:   *privateKey,
+		useTLS:       useTLS,
+	}
 
 	r := NewRadar(10)
 
@@ -34,7 +44,7 @@ func main() {
 	}
 
 	go update(r)
-	go serve(r, colonPort)
+	go serve(r, serverCfg)
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
