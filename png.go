@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"errors"
 	"image"
-	"image/color"
 	"image/draw"
 	"image/gif"
 	"image/png"
@@ -13,8 +12,9 @@ import (
 	"log"
 	"net/http"
 
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/basicfont"
+	"github.com/golang/freetype"
+	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/math/fixed"
 )
 
@@ -45,22 +45,32 @@ func pngFetch(timestamp string) ([]byte, error) {
 }
 
 func textImageCreate(text string, x, y int, bounds image.Rectangle) *image.RGBA {
-	col := color.RGBA{255, 255, 255, 255}
+	txtImg := image.NewRGBA(bounds)
+
+	draw.Draw(txtImg, bounds, image.Transparent, image.ZP, draw.Src)
+
+	font, err := truetype.Parse(goregular.TTF)
+	if err != nil {
+		log.Println("truetype.Parse failed")
+		return nil
+	}
+
+	ctx := freetype.NewContext()
+	ctx.SetDPI(72)
+	ctx.SetFont(font)
+	ctx.SetFontSize(24)
+	ctx.SetClip(bounds)
+	ctx.SetDst(txtImg)
+	ctx.SetSrc(image.Black)
+
 	point := fixed.Point26_6{
 		X: fixed.Int26_6(x * 64),
 		Y: fixed.Int26_6(y * 64),
 	}
 
-	img := image.NewRGBA(bounds)
-	d := &font.Drawer{
-		Dst:  img,
-		Src:  image.NewUniform(col),
-		Face: basicfont.Face7x13,
-		Dot:  point,
-	}
-	d.DrawString(text)
+	ctx.DrawString(text, point)
 
-	return img
+	return txtImg
 }
 
 func pngText(img []byte, dateStr, timeStr string) ([]byte, error) {
@@ -69,8 +79,8 @@ func pngText(img []byte, dateStr, timeStr string) ([]byte, error) {
 		return nil, err
 	}
 
-	dateImg := textImageCreate(dateStr, 10, 30, decoded.Bounds())
-	timeImg := textImageCreate(timeStr, 10, 60, decoded.Bounds())
+	dateImg := textImageCreate(dateStr, 90, 30, decoded.Bounds())
+	timeImg := textImageCreate(timeStr, 90, 60, decoded.Bounds())
 
 	out := image.NewRGBA(decoded.Bounds())
 	draw.Draw(out, decoded.Bounds(), decoded, image.ZP, draw.Src)
