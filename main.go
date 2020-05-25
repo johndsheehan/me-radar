@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	mea "github.com/johndsheehan/met-eireann-archive/pkg/met-eireann-archive"
 )
 
 func main() {
@@ -32,10 +34,15 @@ func main() {
 
 	r := NewRadar(10)
 
+	mea, err := mea.NewMEArchive(&mea.MEArchiveConfig{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for i := 11; i > 0; i-- {
 		d := time.Duration(i * 15)
 		then := time.Now().Add(-d * time.Minute)
-		gifImg, err := fetch(then)
+		gifImg, err := mea.Fetch(then)
 		if err != nil {
 			log.Print(err)
 			continue
