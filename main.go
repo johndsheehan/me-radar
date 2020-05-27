@@ -6,9 +6,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	mea "github.com/johndsheehan/met-eireann-archive/pkg/met-eireann-archive"
+	"github.com/johndsheehan/met-eireann-archive/pkg/radar"
 )
 
 func main() {
@@ -32,25 +32,14 @@ func main() {
 		useTLS:       useTLS,
 	}
 
-	r := NewRadar(10)
-
 	mea, err := mea.NewMEArchive(&mea.MEArchiveConfig{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for i := 11; i > 0; i-- {
-		d := time.Duration(i * 15)
-		then := time.Now().Add(-d * time.Minute)
-		gifImg, err := mea.Fetch(then)
-		if err != nil {
-			log.Print(err)
-			continue
-		}
-		r.Update(gifImg)
-	}
+	r := radar.NewRadar(10, mea)
 
-	go update(r)
+	go r.Watch()
 	go serve(r, serverCfg)
 
 	sig := make(chan os.Signal, 1)

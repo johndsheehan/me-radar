@@ -5,9 +5,11 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/johndsheehan/met-eireann-archive/pkg/radar"
 )
 
-func serveRadar(rdr *Radar) func(http.ResponseWriter, *http.Request) {
+func serveRadar(rdr *radar.Radar) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println(r.RemoteAddr)
 
@@ -49,7 +51,7 @@ type ServerConfig struct {
 	useTLS       bool
 }
 
-func serve(r *Radar, cfg ServerConfig) {
+func serve(r *radar.Radar, cfg ServerConfig) {
 	http.HandleFunc("/", serveRadar(r))
 
 	if cfg.useTLS {
