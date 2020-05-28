@@ -39,10 +39,12 @@ func main() {
 
 	r := radar.NewRadar(10, mea)
 
-	go r.Watch()
+	r.Watch()
 	go serve(r, serverCfg)
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	<-sig
+
+	r.Stop()
 }

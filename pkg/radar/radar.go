@@ -21,6 +21,10 @@ type Radar struct {
 	lock sync.Mutex
 	q    *queue.Queue
 	gif  []byte
+
+	running bool
+	stop    chan struct{}
+
 	RadarImage
 }
 
@@ -35,6 +39,8 @@ func NewRadar(history int, fetch RadarImage) *Radar {
 		sync.Mutex{},
 		q,
 		nil,
+		false,
+		make(chan struct{}),
 		fetch,
 	}
 
@@ -68,20 +74,23 @@ func (r *Radar) populate() error {
 	return nil
 }
 
+// Stop watch if it is running
+func (r *Radar) Stop() {
+	if r.running {
+		r.stop <- struct{}{}
+	}
+
+	r.running = false
+}
+
+// Watch start a goroutine to periodically check for updated images
 func (r *Radar) Watch() {
-	retry := true
-	for {
-		retry = snooze(retry)
-		gifImg, err := r.RadarImage.Fetch(time.Now())
-		if err != nil {
-			continue
-		}
-		r.update(gifImg)
-		retry = false
+	if !r.running {
+		go r.watch()
 	}
 }
 
-// Update add new gif image to existing gif
+// update add new gif image to existing gif
 func (r *Radar) update(gifImg *image.Paletted) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
@@ -109,6 +118,27 @@ func (r *Radar) update(gifImg *image.Paletted) error {
 
 	r.gif = buf.Bytes()
 	return nil
+}
+
+func (r *Radar) watch() {
+	retry := true
+
+	r.running = true
+	for {
+		select {
+		case <-r.stop:
+			break
+		default:
+			retry = snooze(retry)
+			gifImg, err := r.RadarImage.Fetch(time.Now())
+			if err != nil {
+				continue
+			}
+			r.update(gifImg)
+			retry = false
+		}
+	}
+	r.running = false
 }
 
 func snooze(retry bool) bool {
