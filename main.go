@@ -9,6 +9,7 @@ import (
 
 	mea "github.com/johndsheehan/met-eireann-archive/pkg/met-eireann-archive"
 	"github.com/johndsheehan/met-eireann-archive/pkg/radar"
+	"github.com/johndsheehan/met-eireann-archive/pkg/serve"
 )
 
 func main() {
@@ -24,12 +25,17 @@ func main() {
 		useTLS = true
 	}
 
-	serverCfg := ServerConfig{
-		colonPort:    ":" + *port,
-		colonTLSPort: ":" + *tlsport,
-		fullchain:    *fullchain,
-		privateKey:   *privateKey,
-		useTLS:       useTLS,
+	serverCfg := serve.ServerConfig{
+		ColonPort:    ":" + *port,
+		ColonTLSPort: ":" + *tlsport,
+		FullChain:    *fullchain,
+		PrivateKey:   *privateKey,
+		UseTLS:       useTLS,
+	}
+
+	svr, err := serve.NewServer(serverCfg)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	mea, err := mea.NewMEArchive(&mea.MEArchiveConfig{})
@@ -37,14 +43,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r := radar.NewRadar(10, mea)
+	rdr := radar.NewRadar(10, mea)
 
-	r.Watch()
-	go serve(r, serverCfg)
+	rdr.Watch()
+	svr.Serve(rdr)
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	<-sig
 
-	r.Stop()
+	rdr.Stop()
+	svr.Stop()
 }
