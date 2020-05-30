@@ -6,7 +6,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
+
+	mea "github.com/johndsheehan/met-eireann-archive/pkg/met-eireann-archive"
+	"github.com/johndsheehan/met-eireann-archive/pkg/radar"
+	"github.com/johndsheehan/met-eireann-archive/pkg/serve"
 )
 
 func main() {
@@ -22,31 +25,33 @@ func main() {
 		useTLS = true
 	}
 
-	serverCfg := ServerConfig{
-		colonPort:    ":" + *port,
-		colonTLSPort: ":" + *tlsport,
-		fullchain:    *fullchain,
-		privateKey:   *privateKey,
-		useTLS:       useTLS,
+	serverCfg := serve.ServerConfig{
+		ColonPort:    ":" + *port,
+		ColonTLSPort: ":" + *tlsport,
+		FullChain:    *fullchain,
+		PrivateKey:   *privateKey,
+		UseTLS:       useTLS,
 	}
 
-	r := NewRadar(10)
-
-	for i := 11; i > 0; i-- {
-		d := time.Duration(i * 15)
-		then := time.Now().Add(-d * time.Minute)
-		gifImg, err := fetch(then)
-		if err != nil {
-			log.Print(err)
-			continue
-		}
-		r.Update(gifImg)
+	svr, err := serve.NewServer(serverCfg)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	go update(r)
-	go serve(r, serverCfg)
+	mea, err := mea.NewMEArchive(&mea.MEArchiveConfig{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rdr := radar.NewRadar(10, mea)
+
+	rdr.Watch()
+	svr.Serve(rdr)
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	<-sig
+
+	rdr.Stop()
+	svr.Stop()
 }

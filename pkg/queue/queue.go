@@ -1,4 +1,4 @@
-package main
+package queue
 
 import (
 	"errors"
@@ -32,6 +32,11 @@ func (q *Queue) Entries() ([]*image.Paletted, error) {
 	defer q.lock.Unlock()
 
 	return q.entries, nil
+}
+
+// MaxLength return maximum capacity of queue
+func (q *Queue) MaxLength() int {
+	return q.maxLength
 }
 
 // Push add newest radar image

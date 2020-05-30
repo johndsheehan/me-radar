@@ -1,4 +1,4 @@
-package main
+package mea
 
 import (
 	"bufio"
@@ -8,41 +8,13 @@ import (
 	"image/draw"
 	"image/gif"
 	"image/png"
-	"io/ioutil"
 	"log"
-	"net/http"
 
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/math/fixed"
 )
-
-const (
-	urlBase = "http://archive.met.ie/weathermaps/radar2/WEB_radar5_"
-)
-
-func pngFetch(timestamp string) ([]byte, error) {
-	url := urlBase + timestamp + ".png"
-	log.Println(url)
-
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return nil, errors.New("image not found")
-	}
-
-	pngBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return pngBytes, nil
-}
 
 func textImageCreate(text string, x, y int, bounds image.Rectangle) *image.RGBA {
 	txtImg := image.NewRGBA(bounds)
