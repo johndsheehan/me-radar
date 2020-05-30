@@ -77,6 +77,7 @@ func (r *Radar) populate() error {
 // Stop watch if it is running
 func (r *Radar) Stop() {
 	if r.running {
+		log.Print("stopping radar")
 		r.stop <- struct{}{}
 	}
 
@@ -121,31 +122,36 @@ func (r *Radar) update(gifImg *image.Paletted) error {
 }
 
 func (r *Radar) watch() {
+	ticker := time.NewTicker(1 * time.Minute)
 	retry := true
 
 	r.running = true
+
 	for {
 		select {
 		case <-r.stop:
+			ticker.Stop()
 			break
-		default:
-			retry = snooze(retry)
+		case <-ticker.C:
 			gifImg, err := r.RadarImage.Fetch(time.Now())
 			if err != nil {
+				retry = true
+				ticker.Stop()
+
+				ticker = time.NewTicker(1 * time.Minute)
 				continue
 			}
+
+			if retry {
+				retry = false
+				ticker.Stop()
+
+				ticker = time.NewTicker(15 * time.Minute)
+			}
+
 			r.update(gifImg)
-			retry = false
 		}
 	}
-	r.running = false
-}
 
-func snooze(retry bool) bool {
-	if retry {
-		time.Sleep(1 * time.Minute)
-	} else {
-		time.Sleep(15 * time.Minute)
-	}
-	return true
+	r.running = false
 }
