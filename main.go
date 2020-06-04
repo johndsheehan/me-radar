@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	mea "github.com/johndsheehan/met-eireann-archive/pkg/met-eireann-archive"
+	mer "github.com/johndsheehan/met-eireann-archive/pkg/met-eireann-radar"
 	"github.com/johndsheehan/met-eireann-archive/pkg/radar"
 	"github.com/johndsheehan/met-eireann-archive/pkg/serve"
 )
@@ -38,12 +38,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	mea, err := mea.NewMEArchive(&mea.MEArchiveConfig{})
+	mer, err := mer.NewMEArchive(&mer.MEArchiveConfig{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	rdr := radar.NewRadar(10, mea)
+	rdr := radar.NewRadar(10, mer)
 
 	rdr.Watch()
 	svr.Serve(rdr)

@@ -1,4 +1,4 @@
-package mea
+package mer
 
 import (
 	"bufio"
