@@ -105,9 +105,7 @@ func (m MECurrent) fetch(timestamp string) ([]byte, error) {
 		}
 	}
 
-	out := image.NewRGBA(basePNG.Bounds())
-	draw.Draw(out, basePNG.Bounds(), basePNG, image.ZP, draw.Over)
-
+	tileImg := image.NewRGBA(image.Rect(0, 0, (256 * 5), (256 * 4)))
 	for t := range tileChan {
 		decoded, err := png.Decode(bytes.NewReader(t.data))
 		if err != nil {
@@ -117,8 +115,12 @@ func (m MECurrent) fetch(timestamp string) ([]byte, error) {
 
 		o := moffset[t.name]
 		bbox := image.Rect(o.x, o.y, o.x+256, o.y+256)
-		draw.Draw(out, bbox.Bounds(), decoded, image.ZP, draw.Over)
+		draw.Draw(tileImg, bbox.Bounds(), decoded, image.ZP, draw.Over)
 	}
+
+	out := image.NewRGBA(basePNG.Bounds())
+	draw.Draw(out, basePNG.Bounds(), basePNG, image.ZP, draw.Over)
+	draw.Draw(out, basePNG.Bounds(), tileImg, image.Point{X: 80, Y: 0}, draw.Over)
 
 	var buf bytes.Buffer
 	wtr := bufio.NewWriter(&buf)
@@ -206,7 +208,7 @@ func fetchRadarURL(timestamp string) (string, string, error) {
 func fetchURLList() ([]byte, error) {
 	client := &http.Client{}
 
-	url := "https://devcdn.metweb.ie/api/maps/radar"
+	url := "https://api.met.ie/api/maps/radar"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
