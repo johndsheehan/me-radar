@@ -29,7 +29,7 @@ func NewMEArchive(cfg *MEArchiveConfig) (*MEArchive, error) {
 }
 
 func (m MEArchive) Fetch(t time.Time) (*image.Paletted, error) {
-	timestamp, dateStr, timeStr := timestrings(t)
+	timestamp, dateStr, timeStr := timestrings(t, archive)
 	log.Printf("%s, %s, %s", timestamp, dateStr, timeStr)
 
 	pngBytes, err := m.fetch(timestamp)

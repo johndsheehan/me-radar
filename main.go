@@ -38,7 +38,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	mer, err := mer.NewMEArchive(&mer.MEArchiveConfig{})
+	mer, err := mer.NewMECurrent(&mer.MECurrentConfig{})
 	if err != nil {
 		log.Fatal(err)
 	}
