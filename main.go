@@ -13,6 +13,7 @@ import (
 )
 
 func main() {
+	format := flag.String("format", "archive", "image format `archive` or `current`")
 	port := flag.String("port", "3080", "http port (default 3080)")
 	tlsport := flag.String("tlsport", "3443", "https port (default 3443)")
 	fullchain := flag.String("fullchain", "", "fullchain.pem")
@@ -38,7 +39,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	mer, err := mer.NewMECurrent(&mer.MECurrentConfig{})
+	rfmt := mer.ARCHIVE
+	if *format == "current" {
+		rfmt = mer.CURRENT
+	}
+
+	mer, err := mer.NewMERadar(rfmt)
 	if err != nil {
 		log.Fatal(err)
 	}

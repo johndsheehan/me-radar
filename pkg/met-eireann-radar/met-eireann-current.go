@@ -14,40 +14,39 @@ import (
 	"net/http"
 	"os"
 	"sync"
-	"time"
 )
 
-type MECurrentConfig struct {
-}
+// type MECurrentConfig struct {
+// }
 
-type MECurrent struct {
-}
+// type MECurrent struct {
+// }
 
-func NewMECurrent(cfg *MECurrentConfig) (*MECurrent, error) {
-	return &MECurrent{}, nil
-}
+// func NewMECurrent(cfg *MECurrentConfig) (*MECurrent, error) {
+// 	return &MECurrent{}, nil
+// }
 
-func (m MECurrent) Fetch(t time.Time) (*image.Paletted, error) {
-	timestamp, dateStr, timeStr := timestrings(t, current)
-	log.Printf("%s, %s, %s", timestamp, dateStr, timeStr)
+// func (m MECurrent) Fetch(t time.Time) (*image.Paletted, error) {
+// 	timestamp, dateStr, timeStr := timestrings(t, current)
+// 	log.Printf("%s, %s, %s", timestamp, dateStr, timeStr)
 
-	pngBytes, err := m.fetch(timestamp)
-	if err != nil {
-		return nil, err
-	}
+// 	pngBytes, err := m.fetch(timestamp)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	pngImg, err := pngText(pngBytes, dateStr, timeStr)
-	if err != nil {
-		return nil, err
-	}
+// 	pngImg, err := pngText(pngBytes, dateStr, timeStr)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	gifImg, err := pngToGIF(pngImg)
-	if err != nil {
-		return nil, err
-	}
+// 	gifImg, err := pngToGIF(pngImg)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return gifImg, nil
-}
+// 	return gifImg, nil
+// }
 
 type tile struct {
 	name string
@@ -56,7 +55,14 @@ type tile struct {
 	data []byte
 }
 
-func (m MECurrent) fetch(timestamp string) ([]byte, error) {
+type meCurrent struct {
+}
+
+func newCurrent() *meCurrent {
+	return &meCurrent{}
+}
+
+func (m meCurrent) fetch(timestamp string) ([]byte, error) {
 	baseURL, endpoint, err := fetchRadarURL(timestamp)
 	if err != nil {
 		return nil, err
