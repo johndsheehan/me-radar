@@ -7,59 +7,15 @@ import (
 	"net/http"
 )
 
-// type MEArchiveConfig struct {
-// 	URLBase string
-// }
-
-// type MEArchive struct {
-// 	urlBase string
-// }
-
-// func NewMEArchive(cfg *MEArchiveConfig) (*MEArchive, error) {
-// 	urlBase := "http://archive.met.ie/weathermaps/radar2/WEB_radar5_"
-// 	if cfg.URLBase != "" {
-// 		urlBase = cfg.URLBase
-// 	}
-
-// 	return &MEArchive{
-// 		urlBase: urlBase,
-// 	}, nil
-// }
-
-// func (m MEArchive) Fetch(t time.Time) (*image.Paletted, error) {
-// 	timestamp, dateStr, timeStr := timestrings(t, archive)
-// 	log.Printf("%s, %s, %s", timestamp, dateStr, timeStr)
-
-// 	pngBytes, err := m.fetch(timestamp)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	pngImg, err := pngText(pngBytes, dateStr, timeStr)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	gifImg, err := pngToGIF(pngImg)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return gifImg, nil
-// }
-
 type meArchive struct {
-	urlBase string
 }
 
 func newArchive() *meArchive {
-	return &meArchive{
-		urlBase: "http://archive.met.ie/weathermaps/radar2/WEB_radar5_",
-	}
+	return &meArchive{}
 }
 
 func (m meArchive) fetch(timestamp string) ([]byte, error) {
-	url := m.urlBase + timestamp + ".png"
+	url := constants.archiveURL + timestamp + ".png"
 	log.Println(url)
 
 	resp, err := http.Get(url)
