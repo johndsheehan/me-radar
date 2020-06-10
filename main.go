@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	mer "github.com/johndsheehan/met-eireann-archive/pkg/met-eireann-radar"
+	mer "github.com/johndsheehan/met-eireann-archive/pkg/me-radar"
 	"github.com/johndsheehan/met-eireann-archive/pkg/radar"
 	"github.com/johndsheehan/met-eireann-archive/pkg/serve"
 )
