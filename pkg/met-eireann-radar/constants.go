@@ -1,6 +1,12 @@
 package mer
 
-import "fmt"
+import (
+	"bytes"
+	"encoding/base64"
+	"fmt"
+	"image"
+	"log"
+)
 
 type constantVars struct {
 	archiveURL string
@@ -14,6 +20,8 @@ type constantVars struct {
 	yRange []int
 
 	tileOffsets map[string]tileOffset
+
+	currentBasePNG image.Image
 }
 
 func setConstantVars() constantVars {
@@ -40,14 +48,25 @@ func setConstantVars() constantVars {
 		}
 	}
 
+	basePNG, err := base64.StdEncoding.DecodeString(b64CurrentBaseImg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rdr := bytes.NewReader(basePNG)
+	imagePNG, _, err := image.Decode(rdr)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return constantVars{
-		archiveURL:  archiveURL,
-		apiURL:      apiURL,
-		host:        host,
-		headers:     headers,
-		xRange:      xRange,
-		yRange:      yRange,
-		tileOffsets: offsets,
+		archiveURL:     archiveURL,
+		apiURL:         apiURL,
+		host:           host,
+		headers:        headers,
+		xRange:         xRange,
+		yRange:         yRange,
+		tileOffsets:    offsets,
+		currentBasePNG: imagePNG,
 	}
 }
 

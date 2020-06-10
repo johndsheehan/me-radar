@@ -12,7 +12,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"sync"
 )
 
@@ -54,22 +53,12 @@ func (m meCurrent) fetch(timestamp string) ([]byte, error) {
 		return nil, err
 	}
 
-	// TODO: basePNG := constants.currentBasePNG
-	baseFile, err := os.Open("base.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer baseFile.Close()
-
-	basePNG, _, err := image.Decode(baseFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	tileImg, err := fetchTileImage(baseURL, endpoint)
 	if err != nil {
 		return nil, nil
 	}
+
+	basePNG := constants.currentBasePNG
 
 	out := image.NewRGBA(basePNG.Bounds())
 	draw.Draw(out, basePNG.Bounds(), basePNG, image.ZP, draw.Over)
