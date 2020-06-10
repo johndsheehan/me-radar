@@ -8,6 +8,7 @@ RUN apk update  \
 
 WORKDIR /app
 COPY go.mod go.sum *.go  ./
+COPY pkg  ./pkg
 
 RUN go get -u  \
  && CGO_ENABLED=0 GOOS=linux go build  -a  -ldflags '-extldflags "-static"'  -o /tmp/app  .  \
@@ -21,6 +22,7 @@ COPY --from=build  /etc/ssl/certs/ca-certificates.crt  /etc/ssl/certs/
 COPY --from=build  /etc/passwd  /etc/passwd
 COPY --from=build  /tmp/app  /home/app/app
 
+ENV TZ=Europe/Dublin
 EXPOSE 3031/tcp
 
 USER app
