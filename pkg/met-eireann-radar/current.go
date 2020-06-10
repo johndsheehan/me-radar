@@ -41,10 +41,42 @@ type tileOffset struct {
 }
 
 type meCurrent struct {
+	icon image.Image
 }
 
 func newCurrent() *meCurrent {
-	return &meCurrent{}
+	mec := &meCurrent{
+		icon: image.NewRGBA(image.Rect(0, 0, 1, 1)),
+	}
+
+	client := http.Client{}
+	req, err := http.NewRequest("GET", constants.iconURL, nil)
+	if err != nil {
+		log.Print(err)
+		return mec
+	}
+
+	rsp, err := client.Do(req)
+	if err != nil {
+		log.Print(err)
+		return mec
+	}
+	defer rsp.Body.Close()
+
+	iconData, err := ioutil.ReadAll(rsp.Body)
+	if err != nil {
+		log.Print(err)
+		return mec
+	}
+
+	icon, err := png.Decode(bytes.NewReader(iconData))
+	if err != nil {
+		log.Print(err)
+		return mec
+	}
+
+	mec.icon = icon
+	return mec
 }
 
 func (m meCurrent) fetch(timestamp string) ([]byte, error) {
@@ -63,6 +95,7 @@ func (m meCurrent) fetch(timestamp string) ([]byte, error) {
 	out := image.NewRGBA(basePNG.Bounds())
 	draw.Draw(out, basePNG.Bounds(), basePNG, image.ZP, draw.Over)
 	draw.Draw(out, basePNG.Bounds(), tileImg, image.Point{X: 80, Y: 0}, draw.Over)
+	draw.Draw(out, basePNG.Bounds(), m.icon, image.ZP, draw.Over)
 
 	var buf bytes.Buffer
 	wtr := bufio.NewWriter(&buf)

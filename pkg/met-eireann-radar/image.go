@@ -51,8 +51,8 @@ func pngText(img []byte, dateStr, timeStr string) ([]byte, error) {
 		return nil, err
 	}
 
-	dateImg := textImageCreate(dateStr, 90, 30, decoded.Bounds())
-	timeImg := textImageCreate(timeStr, 90, 60, decoded.Bounds())
+	dateImg := textImageCreate(dateStr, 110, 30, decoded.Bounds())
+	timeImg := textImageCreate(timeStr, 110, 60, decoded.Bounds())
 
 	out := image.NewRGBA(decoded.Bounds())
 	draw.Draw(out, decoded.Bounds(), decoded, image.ZP, draw.Src)

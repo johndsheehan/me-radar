@@ -3,7 +3,6 @@ package mer
 import (
 	"fmt"
 	"image"
-	"log"
 	"time"
 )
 
@@ -45,7 +44,6 @@ func NewMERadar(rf RadarFormat) (*MERadar, error) {
 // Fetch gif format radar image
 func (m MERadar) Fetch(t time.Time) (*image.Paletted, error) {
 	timestamp, dateStr, timeStr := m.timestrings(t)
-	log.Printf("%s, %s, %s", timestamp, dateStr, timeStr)
 
 	pngBytes, err := m.fetch(timestamp)
 	if err != nil {

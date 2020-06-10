@@ -11,6 +11,8 @@ import (
 type constantVars struct {
 	archiveURL string
 
+	iconURL string
+
 	apiURL string
 	host   string
 
@@ -26,6 +28,8 @@ type constantVars struct {
 
 func setConstantVars() constantVars {
 	archiveURL := "http://archive.met.ie/weathermaps/radar2/WEB_radar5_"
+
+	iconURL := "https://devcdn.metweb.ie/images/met-eireann-long.png"
 
 	apiURL := "https://api.met.ie/api/maps/radar"
 	host := "api.met.ie"
@@ -60,6 +64,7 @@ func setConstantVars() constantVars {
 	}
 	return constantVars{
 		archiveURL:     archiveURL,
+		iconURL:        iconURL,
 		apiURL:         apiURL,
 		host:           host,
 		headers:        headers,
