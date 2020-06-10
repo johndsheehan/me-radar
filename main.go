@@ -7,12 +7,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	mea "github.com/johndsheehan/met-eireann-archive/pkg/met-eireann-archive"
+	mer "github.com/johndsheehan/met-eireann-archive/pkg/me-radar"
 	"github.com/johndsheehan/met-eireann-archive/pkg/radar"
 	"github.com/johndsheehan/met-eireann-archive/pkg/serve"
 )
 
 func main() {
+	format := flag.String("format", "archive", "image format `archive` or `current`")
 	port := flag.String("port", "3080", "http port (default 3080)")
 	tlsport := flag.String("tlsport", "3443", "https port (default 3443)")
 	fullchain := flag.String("fullchain", "", "fullchain.pem")
@@ -38,12 +39,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	mea, err := mea.NewMEArchive(&mea.MEArchiveConfig{})
+	rfmt := mer.ARCHIVE
+	if *format == "current" {
+		rfmt = mer.CURRENT
+	}
+
+	mer, err := mer.NewMERadar(rfmt)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	rdr := radar.NewRadar(10, mea)
+	rdr := radar.NewRadar(10, mer)
 
 	rdr.Watch()
 	svr.Serve(rdr)

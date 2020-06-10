@@ -71,6 +71,13 @@ func (r *Radar) populate() error {
 		r.update(gifImg)
 	}
 
+	gifImg, err := r.RadarImage.Fetch(time.Now())
+	if err != nil {
+		log.Print(err)
+		return nil
+	}
+	r.update(gifImg)
+
 	return nil
 }
 
