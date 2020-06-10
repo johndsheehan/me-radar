@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	mer "github.com/johndsheehan/met-eireann-archive/pkg/me-radar"
-	"github.com/johndsheehan/met-eireann-archive/pkg/radar"
-	"github.com/johndsheehan/met-eireann-archive/pkg/serve"
+	mer "github.com/johndsheehan/me-radar/pkg/me-radar"
+	"github.com/johndsheehan/me-radar/pkg/radar"
+	"github.com/johndsheehan/me-radar/pkg/serve"
 )
 
 func main() {

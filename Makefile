@@ -6,13 +6,13 @@ build: clean
 	go get -u ;  go build
 
 clean:
-	rm -rf met-eireann-archive
+	rm -rf me-radar
 
 docker:
-	docker build  --force-rm  -t met-eireann-archive:$(TAG)  -f Dockerfile .
+	docker build  --force-rm  -t me-radar:$(TAG)  -f Dockerfile .
 
 install: build
-	cp ./met-eireann-archive  /usr/local/bin
+	cp ./me-radar  /usr/local/bin
 
 uninstall:
-	rm /usr/local/bin/met-eireann-archive
+	rm /usr/local/bin/me-radar

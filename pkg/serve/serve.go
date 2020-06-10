@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/johndsheehan/met-eireann-archive/pkg/radar"
+	"github.com/johndsheehan/me-radar/pkg/radar"
 )
 
 func serveRadar(rdr *radar.Radar) func(http.ResponseWriter, *http.Request) {

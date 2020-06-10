@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/johndsheehan/met-eireann-archive/pkg/queue"
+	"github.com/johndsheehan/me-radar/pkg/queue"
 )
 
 // RadarImage interface to fetch radar image

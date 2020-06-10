@@ -12,7 +12,7 @@ go build
 ## Usage
 
 ```
-./met-eireann-archive --port <port-number>
+./me-radar  --port <port-number>
 ```
 
 ## Docker
