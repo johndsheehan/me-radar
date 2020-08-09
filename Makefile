@@ -9,7 +9,7 @@ clean:
 	rm -rf me-radar
 
 docker:
-	docker build  --force-rm  -t me-radar:$(TAG)  -f Dockerfile .
+	docker build  --network host  --force-rm  -t me-radar:$(TAG)  -f Dockerfile .
 
 install: build
 	cp ./me-radar  /usr/local/bin
